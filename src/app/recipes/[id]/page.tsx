@@ -27,7 +27,7 @@ export default async function RecipePage({
   }
 
   return (
-    <Box bg="gray .50" minH="100vh" py={12}>
+    <Box bg="gray.50" minH="100vh" py={12}>
       <Container maxW="container.xl">
         <Grid templateColumns={{ base: "1fr", md: "1fr 2fr" }} gap={8}>
           <GridItem>
