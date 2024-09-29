@@ -1,0 +1,19 @@
+// schema.prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Recipe {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?
+  ingredients String[]
+  instructions String[]
+  imageUrl    String   @map("imageUrl")
+  isFeatured Boolean @default(false)
+}
