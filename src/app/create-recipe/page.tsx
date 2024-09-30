@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -9,17 +10,14 @@ import {
   FormControl,
   FormLabel,
   Input,
-  Textarea,
   VStack,
-  Heading,
-  useToast,
-  Container,
   Text,
-  Tooltip,
+  Heading,
+  Container,
+  Textarea,
+  useToast,
 } from "@chakra-ui/react";
-import { useRouter } from "next/navigation";
 import { barlowElastic } from "../fonts/fonts";
-import { InfoOutlineIcon } from "@chakra-ui/icons";
 import ProtectedRoute from "../components/ProtectedRoute";
 
 const recipeSchema = z.object({
@@ -34,6 +32,7 @@ type RecipeFormData = z.infer<typeof recipeSchema>;
 export default function CreateRecipe() {
   const router = useRouter();
   const toast = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const {
     register,
     handleSubmit,
@@ -43,6 +42,7 @@ export default function CreateRecipe() {
   });
 
   const onSubmit: SubmitHandler<RecipeFormData> = async (data) => {
+    setIsSubmitting(true);
     try {
       const response = await fetch("/api/recipes", {
         method: "POST",
@@ -50,8 +50,7 @@ export default function CreateRecipe() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title: data.title,
-          description: data.description,
+          ...data,
           ingredients: data.ingredients.split("\n"),
           instructions: data.instructions.split("\n"),
         }),
@@ -65,7 +64,7 @@ export default function CreateRecipe() {
         title: "Rezept erstellt",
         description: "Ihr Rezept wurde erfolgreich erstellt.",
         status: "success",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
 
@@ -74,97 +73,52 @@ export default function CreateRecipe() {
       console.error("Fehler beim Erstellen des Rezepts:", error);
       toast({
         title: "Fehler",
-        description: "Beim Erstellen des Rezepts ist ein Fehler aufgetreten.",
+        description: "Es gab einen Fehler beim Erstellen des Rezepts.",
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
     <ProtectedRoute>
-      <Box
-        minHeight="100vh"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        bg="green.50"
-        position="relative"
-        overflow="hidden"
-      >
-        <Container maxWidth="lg" centerContent position="relative" zIndex={1}>
+      <Box bg="green.50" minHeight="100vh" py={12}>
+        <Container maxW="container.md">
           <Box
-            width="100%"
-            maxWidth="500px"
-            padding={{ base: "20px", md: "40px" }}
-            borderRadius="md"
-            boxShadow="md"
             bg="white"
+            p={8}
+            borderRadius="lg"
+            boxShadow="md"
+            position="relative"
+            zIndex={1}
           >
-            <Heading
-              as="h1"
-              size="xl"
-              textAlign="center"
-              mb={6}
-              color="gray.800"
-            >
+            <Heading as="h1" size="xl" textAlign="center" mb={6}>
               Neues Rezept erstellen
             </Heading>
             <form onSubmit={handleSubmit(onSubmit)}>
               <VStack spacing={4}>
                 <FormControl isInvalid={!!errors.title}>
-                  <FormLabel color="gray.600">
-                    Titel
-                    <Tooltip
-                      label="Der Titel wird verwendet, um ein passendes Rezeptbild zu generieren. Einfache Titel funktionieren am besten."
-                      aria-label="Titel-Tooltip"
-                      hasArrow
-                    >
-                      <InfoOutlineIcon ml={2} color="gray.500" />
-                    </Tooltip>
-                  </FormLabel>
-                  <Input {...register("title")} bg="white" color="gray.800" />
-                  <Text color="red.500" fontSize="sm">
-                    {errors.title?.message}
-                  </Text>
+                  <FormLabel>Titel</FormLabel>
+                  <Input {...register("title")} />
+                  <Text color="red.500">{errors.title?.message}</Text>
                 </FormControl>
                 <FormControl isInvalid={!!errors.description}>
-                  <FormLabel color="gray.600">Beschreibung</FormLabel>
-                  <Textarea
-                    {...register("description")}
-                    bg="white"
-                    color="gray.800"
-                  />
-                  <Text color="red.500" fontSize="sm">
-                    {errors.description?.message}
-                  </Text>
+                  <FormLabel>Beschreibung</FormLabel>
+                  <Textarea {...register("description")} />
+                  <Text color="red.500">{errors.description?.message}</Text>
                 </FormControl>
                 <FormControl isInvalid={!!errors.ingredients}>
-                  <FormLabel color="gray.600">
-                    Zutaten (eine pro Zeile)
-                  </FormLabel>
-                  <Textarea
-                    {...register("ingredients")}
-                    bg="white"
-                    color="gray.800"
-                  />
-                  <Text color="red.500" fontSize="sm">
-                    {errors.ingredients?.message}
-                  </Text>
+                  <FormLabel>Zutaten (eine pro Zeile)</FormLabel>
+                  <Textarea {...register("ingredients")} />
+                  <Text color="red.500">{errors.ingredients?.message}</Text>
                 </FormControl>
                 <FormControl isInvalid={!!errors.instructions}>
-                  <FormLabel color="gray.600">
-                    Anleitung (ein Schritt pro Zeile)
-                  </FormLabel>
-                  <Textarea
-                    {...register("instructions")}
-                    bg="white"
-                    color="gray.800"
-                  />
-                  <Text color="red.500" fontSize="sm">
-                    {errors.instructions?.message}
-                  </Text>
+                  <FormLabel>Anleitung (ein Schritt pro Zeile)</FormLabel>
+                  <Textarea {...register("instructions")} />
+                  <Text color="red.500">{errors.instructions?.message}</Text>
                 </FormControl>
                 <Button
                   type="submit"
@@ -172,6 +126,8 @@ export default function CreateRecipe() {
                   width="full"
                   color="white"
                   _hover={{ bg: "purple.500" }}
+                  isLoading={isSubmitting}
+                  loadingText="Wird erstellt..."
                 >
                   Rezept erstellen
                 </Button>

@@ -3,14 +3,22 @@ import { Box, Flex, Button, Text, Container } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 import { useSupabaseClient } from "@supabase/auth-helpers-react";
 import { barlowElastic } from "../fonts/fonts";
+import { useState } from "react";
 
 const DashboardHeader = () => {
   const router = useRouter();
   const supabase = useSupabaseClient();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
+    setIsLoading(true);
     await supabase.auth.signOut();
     router.push("/");
+  };
+
+  const handleCreateRecipe = () => {
+    setIsLoading(true);
+    router.push("/create-recipe");
   };
 
   return (
@@ -35,14 +43,20 @@ const DashboardHeader = () => {
           </Flex>
 
           <Box>
-            <Button variant="ghost" mr={3} onClick={handleLogout}>
+            <Button
+              variant="ghost"
+              mr={3}
+              onClick={handleLogout}
+              isLoading={isLoading}
+            >
               Logout
             </Button>
             <Button
               colorScheme="brand"
               bg="purple.600"
               _hover={{ bg: "purple.500" }}
-              onClick={() => router.push("/create-recipe")}
+              onClick={handleCreateRecipe}
+              isLoading={isLoading}
             >
               Rezept erstellen
             </Button>

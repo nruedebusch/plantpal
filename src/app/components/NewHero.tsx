@@ -10,9 +10,16 @@ import {
 import { barlowElastic } from "../fonts/fonts";
 import { NextPage } from "next";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const NewHero: NextPage = () => {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleStart = () => {
+    setIsLoading(true);
+    router.push("/register");
+  };
   return (
     <Box
       minHeight="100vh"
@@ -57,7 +64,8 @@ const NewHero: NextPage = () => {
             borderRadius="full"
             px={8}
             _hover={{ bg: "purple.600" }}
-            onClick={() => router.push("/register")}
+            onClick={handleStart}
+            isLoading={isLoading}
           >
             Jetzt Starten
           </Button>

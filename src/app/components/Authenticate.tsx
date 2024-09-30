@@ -46,6 +46,7 @@ const supabase = createClient(
 
 const Authenticate: React.FC<AuthenticateProps> = ({ isRegister }) => {
   const [register, setRegister] = useState<boolean>(isRegister);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const toast = useToast();
 
@@ -58,68 +59,61 @@ const Authenticate: React.FC<AuthenticateProps> = ({ isRegister }) => {
   });
 
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
+    setIsSubmitting(true);
     try {
-      let result;
       if (register) {
-        result = await supabase.auth.signUp({
+        const { error } = await supabase.auth.signUp({
           email: data.email,
           password: data.password,
+        });
+        if (error) throw error;
+        toast({
+          title: "Registrierung erfolgreich",
+          description: "Bitte überprüfen Sie Ihre E-Mails zur Bestätigung.",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
         });
       } else {
-        result = await supabase.auth.signInWithPassword({
+        const { error } = await supabase.auth.signInWithPassword({
           email: data.email,
           password: data.password,
         });
-      }
-
-      if (result.error) throw result.error;
-
-      if (result.data.user) {
+        if (error) throw error;
         router.push("/dashboard");
-      } else {
-        throw new Error("No user returned from Supabase");
       }
     } catch (error) {
-      console.error("Authentication error:", error);
       toast({
-        title: "Authentifizierungsfehler",
+        title: "Fehler",
         description:
-          error instanceof Error
-            ? error.message
-            : "Unbekannter Fehler bei der Anmeldung.",
+          error instanceof Error ? error.message : "Ein Fehler ist aufgetreten",
         status: "error",
-        duration: 3000,
+        duration: 5000,
         isClosable: true,
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <Box
-      minHeight="100vh"
-      display="flex"
-      alignItems="center"
-      justifyContent="center"
-      bg="green.50"
-      position="relative"
-      overflow="hidden"
-    >
-      <Container maxWidth="md" centerContent position="relative" zIndex={1}>
+    <Box bg="green.50" minHeight="100vh" py={12}>
+      <Container maxW="container.sm">
         <Box
-          width="100%"
-          maxWidth="400px"
-          padding="20px"
-          borderRadius="md"
-          boxShadow="md"
           bg="white"
+          p={8}
+          borderRadius="lg"
+          boxShadow="md"
+          position="relative"
+          zIndex={1}
         >
-          <Heading as="h1" size="xl" textAlign="center" mb={6} color="gray.800">
+          <Heading as="h1" size="xl" textAlign="center" mb={6}>
             {register ? "Registrieren" : "Anmelden"}
           </Heading>
           <form onSubmit={handleSubmit(onSubmit)}>
             <VStack spacing={4}>
               <FormControl isInvalid={!!errors.email}>
-                <FormLabel color="gray.600">E-Mail</FormLabel>
+                <FormLabel>E-Mail</FormLabel>
                 <Input
                   {...registerField("email")}
                   type="email"
@@ -131,7 +125,7 @@ const Authenticate: React.FC<AuthenticateProps> = ({ isRegister }) => {
                 </Text>
               </FormControl>
               <FormControl isInvalid={!!errors.password}>
-                <FormLabel color="gray.600">Passwort</FormLabel>
+                <FormLabel>Passwort</FormLabel>
                 <Input
                   {...registerField("password")}
                   type="password"
@@ -162,6 +156,8 @@ const Authenticate: React.FC<AuthenticateProps> = ({ isRegister }) => {
                 width="full"
                 color="white"
                 _hover={{ bg: "purple.500" }}
+                isLoading={isSubmitting}
+                loadingText={register ? "Registriere..." : "Melde an..."}
               >
                 {register ? "Registrieren" : "Anmelden"}
               </Button>
@@ -183,7 +179,7 @@ const Authenticate: React.FC<AuthenticateProps> = ({ isRegister }) => {
           </Text>
         </Box>
       </Container>
-      <ChakraText
+      <Text
         as="h1"
         fontSize={{
           base: "7xl",
@@ -203,7 +199,7 @@ const Authenticate: React.FC<AuthenticateProps> = ({ isRegister }) => {
         zIndex={0}
       >
         Plantpal
-      </ChakraText>
+      </Text>
     </Box>
   );
 };
