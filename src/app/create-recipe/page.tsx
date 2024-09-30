@@ -127,7 +127,6 @@ export default function CreateRecipe() {
                   color="white"
                   _hover={{ bg: "purple.500" }}
                   isLoading={isSubmitting}
-                  loadingText="Wird erstellt..."
                 >
                   Rezept erstellen
                 </Button>

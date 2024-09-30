@@ -97,110 +97,77 @@ const Authenticate: React.FC<AuthenticateProps> = ({ isRegister }) => {
   };
 
   return (
-    <Box bg="green.50" minHeight="100vh" py={12}>
-      <Container maxW="container.sm">
-        <Box
-          bg="white"
-          p={8}
-          borderRadius="lg"
-          boxShadow="md"
-          position="relative"
-          zIndex={1}
-        >
-          <Heading as="h1" size="xl" textAlign="center" mb={6}>
-            {register ? "Registrieren" : "Anmelden"}
-          </Heading>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <VStack spacing={4}>
-              <FormControl isInvalid={!!errors.email}>
-                <FormLabel>E-Mail</FormLabel>
+    <Container maxW="container.sm">
+      <Box bg="white" p={8} borderRadius="lg" boxShadow="md">
+        <Heading as="h1" size="xl" textAlign="center" mb={6}>
+          {register ? "Registrieren" : "Anmelden"}
+        </Heading>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <VStack spacing={4}>
+            <FormControl isInvalid={!!errors.email}>
+              <FormLabel>E-Mail</FormLabel>
+              <Input
+                {...registerField("email")}
+                type="email"
+                bg="white"
+                color="gray.800"
+              />
+              <Text color="red.500" fontSize="sm">
+                {errors.email?.message}
+              </Text>
+            </FormControl>
+            <FormControl isInvalid={!!errors.password}>
+              <FormLabel>Passwort</FormLabel>
+              <Input
+                {...registerField("password")}
+                type="password"
+                bg="white"
+                color="gray.800"
+              />
+              <Text color="red.500" fontSize="sm">
+                {errors.password?.message}
+              </Text>
+            </FormControl>
+            {register && (
+              <FormControl isInvalid={!!errors.confirmPass}>
+                <FormLabel color="gray.600">Passwort bestätigen</FormLabel>
                 <Input
-                  {...registerField("email")}
-                  type="email"
-                  bg="white"
-                  color="gray.800"
-                />
-                <Text color="red.500" fontSize="sm">
-                  {errors.email?.message}
-                </Text>
-              </FormControl>
-              <FormControl isInvalid={!!errors.password}>
-                <FormLabel>Passwort</FormLabel>
-                <Input
-                  {...registerField("password")}
+                  {...registerField("confirmPass")}
                   type="password"
                   bg="white"
                   color="gray.800"
                 />
                 <Text color="red.500" fontSize="sm">
-                  {errors.password?.message}
+                  {errors.confirmPass?.message}
                 </Text>
               </FormControl>
-              {register && (
-                <FormControl isInvalid={!!errors.confirmPass}>
-                  <FormLabel color="gray.600">Passwort bestätigen</FormLabel>
-                  <Input
-                    {...registerField("confirmPass")}
-                    type="password"
-                    bg="white"
-                    color="gray.800"
-                  />
-                  <Text color="red.500" fontSize="sm">
-                    {errors.confirmPass?.message}
-                  </Text>
-                </FormControl>
-              )}
-              <Button
-                type="submit"
-                bg="purple.600"
-                width="full"
-                color="white"
-                _hover={{ bg: "purple.500" }}
-                isLoading={isSubmitting}
-                loadingText={register ? "Registriere..." : "Melde an..."}
-              >
-                {register ? "Registrieren" : "Anmelden"}
-              </Button>
-            </VStack>
-          </form>
-          <Text mt={4} textAlign="center" color="gray.600">
-            {register
-              ? "Haben Sie bereits ein Konto?"
-              : "Haben Sie kein Konto?"}
+            )}
             <Button
-              variant="link"
-              onClick={() => setRegister(!register)}
-              ml={2}
-              color="purple.600"
-              _hover={{ textDecoration: "underline" }}
+              type="submit"
+              bg="purple.600"
+              width="full"
+              color="white"
+              _hover={{ bg: "purple.500" }}
+              isLoading={isSubmitting}
             >
-              {register ? "Anmelden" : "Registrieren"}
+              {register ? "Registrieren" : "Anmelden"}
             </Button>
-          </Text>
-        </Box>
-      </Container>
-      <Text
-        as="h1"
-        fontSize={{
-          base: "7xl",
-          sm: "8xl",
-          md: "10rem",
-          lg: "14rem",
-          xl: "18rem",
-          "2xl": "22rem",
-        }}
-        className={barlowElastic.className}
-        color="purple.700"
-        position="absolute"
-        top="0"
-        left="50%"
-        transform="translateX(-50%)"
-        opacity={0.1}
-        zIndex={0}
-      >
-        Plantpal
-      </Text>
-    </Box>
+          </VStack>
+        </form>
+        <Text mt={4} textAlign="center" color="gray.600">
+          {register ? "Haben Sie bereits ein Konto?" : "Haben Sie kein Konto?"}
+          <Button
+            variant="link"
+            onClick={() => setRegister(!register)}
+            ml={2}
+            color="purple.600"
+            _hover={{ textDecoration: "underline" }}
+          >
+            {register ? "Anmelden" : "Registrieren"}
+          </Button>
+        </Text>
+      </Box>
+    </Container>
   );
 };
 
