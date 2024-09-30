@@ -22,7 +22,7 @@ const NewHero: NextPage = () => {
   };
   return (
     <Box
-      minHeight="100vh"
+      minHeight="100dvh"
       display="flex"
       alignItems={{ base: "center", lg: "start" }}
       justifyContent="center"

@@ -61,34 +61,36 @@ const Authenticate: React.FC<AuthenticateProps> = ({ isRegister }) => {
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     setIsSubmitting(true);
     try {
+      let result;
       if (register) {
-        const { error } = await supabase.auth.signUp({
+        result = await supabase.auth.signUp({
           email: data.email,
           password: data.password,
-        });
-        if (error) throw error;
-        toast({
-          title: "Registrierung erfolgreich",
-          description: "Bitte überprüfen Sie Ihre E-Mails zur Bestätigung.",
-          status: "success",
-          duration: 5000,
-          isClosable: true,
         });
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        result = await supabase.auth.signInWithPassword({
           email: data.email,
           password: data.password,
         });
-        if (error) throw error;
+      }
+
+      if (result.error) throw result.error;
+
+      if (result.data.user) {
         router.push("/dashboard");
+      } else {
+        throw new Error("No user returned from Supabase");
       }
     } catch (error) {
+      console.error("Authentication error:", error);
       toast({
-        title: "Fehler",
+        title: "Authentifizierungsfehler",
         description:
-          error instanceof Error ? error.message : "Ein Fehler ist aufgetreten",
+          error instanceof Error
+            ? error.message
+            : "Unbekannter Fehler bei der Anmeldung.",
         status: "error",
-        duration: 5000,
+        duration: 3000,
         isClosable: true,
       });
     } finally {
@@ -97,77 +99,117 @@ const Authenticate: React.FC<AuthenticateProps> = ({ isRegister }) => {
   };
 
   return (
-    <Container maxW="container.sm">
-      <Box bg="white" p={8} borderRadius="lg" boxShadow="md">
-        <Heading as="h1" size="xl" textAlign="center" mb={6}>
-          {register ? "Registrieren" : "Anmelden"}
-        </Heading>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <VStack spacing={4}>
-            <FormControl isInvalid={!!errors.email}>
-              <FormLabel>E-Mail</FormLabel>
-              <Input
-                {...registerField("email")}
-                type="email"
-                bg="white"
-                color="gray.800"
-              />
-              <Text color="red.500" fontSize="sm">
-                {errors.email?.message}
-              </Text>
-            </FormControl>
-            <FormControl isInvalid={!!errors.password}>
-              <FormLabel>Passwort</FormLabel>
-              <Input
-                {...registerField("password")}
-                type="password"
-                bg="white"
-                color="gray.800"
-              />
-              <Text color="red.500" fontSize="sm">
-                {errors.password?.message}
-              </Text>
-            </FormControl>
-            {register && (
-              <FormControl isInvalid={!!errors.confirmPass}>
-                <FormLabel color="gray.600">Passwort bestätigen</FormLabel>
+    <Box
+      minHeight="100dvh"
+      display="flex"
+      alignItems="center"
+      justifyContent="center"
+      bg="green.50"
+      position="relative"
+      overflow="hidden"
+    >
+      <Container maxWidth="md" centerContent position="relative" zIndex={1}>
+        <Box
+          width="100%"
+          maxWidth="400px"
+          padding="20px"
+          borderRadius="md"
+          boxShadow="md"
+          bg="white"
+        >
+          <Heading as="h1" size="xl" textAlign="center" mb={6} color="gray.800">
+            {register ? "Registrieren" : "Anmelden"}
+          </Heading>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <VStack spacing={4}>
+              <FormControl isInvalid={!!errors.email}>
+                <FormLabel color="gray.600">E-Mail</FormLabel>
                 <Input
-                  {...registerField("confirmPass")}
+                  {...registerField("email")}
+                  type="email"
+                  bg="white"
+                  color="gray.800"
+                />
+                <Text color="red.500" fontSize="sm">
+                  {errors.email?.message}
+                </Text>
+              </FormControl>
+              <FormControl isInvalid={!!errors.password}>
+                <FormLabel color="gray.600">Passwort</FormLabel>
+                <Input
+                  {...registerField("password")}
                   type="password"
                   bg="white"
                   color="gray.800"
                 />
                 <Text color="red.500" fontSize="sm">
-                  {errors.confirmPass?.message}
+                  {errors.password?.message}
                 </Text>
               </FormControl>
-            )}
+              {register && (
+                <FormControl isInvalid={!!errors.confirmPass}>
+                  <FormLabel color="gray.600">Passwort bestätigen</FormLabel>
+                  <Input
+                    {...registerField("confirmPass")}
+                    type="password"
+                    bg="white"
+                    color="gray.800"
+                  />
+                  <Text color="red.500" fontSize="sm">
+                    {errors.confirmPass?.message}
+                  </Text>
+                </FormControl>
+              )}
+              <Button
+                type="submit"
+                bg="purple.600"
+                width="full"
+                color="white"
+                isLoading={isSubmitting}
+                _hover={{ bg: "purple.500" }}
+              >
+                {register ? "Registrieren" : "Anmelden"}
+              </Button>
+            </VStack>
+          </form>
+          <Text mt={4} textAlign="center" color="gray.600">
+            {register
+              ? "Haben Sie bereits ein Konto?"
+              : "Haben Sie kein Konto?"}
             <Button
-              type="submit"
-              bg="purple.600"
-              width="full"
-              color="white"
-              _hover={{ bg: "purple.500" }}
-              isLoading={isSubmitting}
+              variant="link"
+              onClick={() => setRegister(!register)}
+              ml={2}
+              color="purple.600"
+              _hover={{ textDecoration: "underline" }}
             >
-              {register ? "Registrieren" : "Anmelden"}
+              {register ? "Anmelden" : "Registrieren"}
             </Button>
-          </VStack>
-        </form>
-        <Text mt={4} textAlign="center" color="gray.600">
-          {register ? "Haben Sie bereits ein Konto?" : "Haben Sie kein Konto?"}
-          <Button
-            variant="link"
-            onClick={() => setRegister(!register)}
-            ml={2}
-            color="purple.600"
-            _hover={{ textDecoration: "underline" }}
-          >
-            {register ? "Anmelden" : "Registrieren"}
-          </Button>
-        </Text>
-      </Box>
-    </Container>
+          </Text>
+        </Box>
+      </Container>
+      <ChakraText
+        as="h1"
+        fontSize={{
+          base: "7xl",
+          sm: "8xl",
+          md: "10rem",
+          lg: "14rem",
+          xl: "18rem",
+          "2xl": "22rem",
+        }}
+        className={barlowElastic.className}
+        color="purple.700"
+        position="absolute"
+        top="0"
+        left="50%"
+        transform="translateX(-50%)"
+        opacity={0.1}
+        zIndex={0}
+      >
+        Plantpal
+      </ChakraText>
+    </Box>
   );
 };
 

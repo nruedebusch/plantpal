@@ -85,15 +85,23 @@ export default function CreateRecipe() {
 
   return (
     <ProtectedRoute>
-      <Box bg="green.50" minHeight="100vh" py={12}>
-        <Container maxW="container.md">
+      <Box
+        minHeight="100vh"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+        bg="green.50"
+        position="relative"
+        overflow="hidden"
+      >
+        <Container maxWidth="lg" centerContent position="relative" zIndex={1}>
           <Box
-            bg="white"
-            p={8}
-            borderRadius="lg"
+            width="100%"
+            maxWidth="500px"
+            padding={{ base: "20px", md: "40px" }}
+            borderRadius="md"
             boxShadow="md"
-            position="relative"
-            zIndex={1}
+            bg="white"
           >
             <Heading as="h1" size="xl" textAlign="center" mb={6}>
               Neues Rezept erstellen
