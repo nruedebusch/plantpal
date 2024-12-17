@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Providers } from "./Providers";
-import ClientProviders from "./ClientProviders";
 import { barlowElastic } from "./fonts/fonts";
 
 export const metadata: Metadata = {
@@ -26,9 +25,7 @@ export default function RootLayout({
     <html lang="de" className={barlowElastic.variable}>
       <body>
         <Providers>
-          <ClientProviders>
-            <main>{children}</main>
-          </ClientProviders>
+          <main>{children}</main>
         </Providers>
       </body>
     </html>
