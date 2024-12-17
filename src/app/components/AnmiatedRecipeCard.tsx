@@ -1,7 +1,6 @@
 "use client";
 import { Box, Text, VStack, Image } from "@chakra-ui/react";
 import { Recipe } from "../../types/recipe";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface RecipeCardProps {

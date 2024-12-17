@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Providers } from "./Providers";
 import ClientProviders from "./ClientProviders";
+import { barlowElastic } from "./fonts/fonts";
 
 export const metadata: Metadata = {
   title: "Plantpal - Entdecke köstliche vegane Rezepte",
@@ -22,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="de">
+    <html lang="de" className={barlowElastic.variable}>
       <body>
         <Providers>
           <ClientProviders>
