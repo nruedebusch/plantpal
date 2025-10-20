@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { createClient } from "@supabase/supabase-js";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   Box,
   Button,
@@ -39,16 +39,12 @@ const schema = z
 
 type FormData = z.infer<typeof schema>;
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 const Authenticate: React.FC<AuthenticateProps> = ({ isRegister }) => {
   const [register, setRegister] = useState<boolean>(isRegister);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const router = useRouter();
   const toast = useToast();
+  const { signUp, signIn } = useAuth();
 
   const {
     register: registerField,
@@ -61,34 +57,17 @@ const Authenticate: React.FC<AuthenticateProps> = ({ isRegister }) => {
   const onSubmit: SubmitHandler<FormData> = async (data: FormData) => {
     setIsSubmitting(true);
     try {
-      let result;
       if (register) {
-        result = await supabase.auth.signUp({
-          email: data.email,
-          password: data.password,
-        });
+        await signUp(data.email, data.password);
       } else {
-        result = await supabase.auth.signInWithPassword({
-          email: data.email,
-          password: data.password,
-        });
+        await signIn(data.email, data.password);
       }
-
-      if (result.error) throw result.error;
-
-      if (result.data.user) {
-        router.push("/dashboard");
-      } else {
-        throw new Error("No user returned from Supabase");
-      }
-    } catch (error) {
+      router.push("/dashboard");
+    } catch (error: any) {
       console.error("Authentication error:", error);
       toast({
         title: "Authentifizierungsfehler",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Unbekannter Fehler bei der Anmeldung.",
+        description: error.message || "Unbekannter Fehler bei der Anmeldung.",
         status: "error",
         duration: 3000,
         isClosable: true,

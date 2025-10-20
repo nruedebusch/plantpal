@@ -1,18 +1,18 @@
 "use client";
 import { Box, Flex, Button, Text, Container } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { barlowElastic } from "../fonts/fonts";
 import { useState } from "react";
 
 const DashboardHeader = () => {
   const router = useRouter();
-  const supabase = useSupabaseClient();
+  const { logout } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
     setIsLoading(true);
-    await supabase.auth.signOut();
+    await logout();
     router.push("/");
   };
 

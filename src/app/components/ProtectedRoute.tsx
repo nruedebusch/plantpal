@@ -1,7 +1,8 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Spinner, Center } from "@chakra-ui/react";
 
 export default function ProtectedRoute({
   children,
@@ -9,21 +10,21 @@ export default function ProtectedRoute({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const supabase = useSupabaseClient();
-  const user = useUser();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
-    const checkUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session) {
-        router.push("/login");
-      }
-    };
+    if (!loading && !user) {
+      router.push("/login");
+    }
+  }, [user, loading, router]);
 
-    checkUser();
-  }, [supabase, router, user]);
+  if (loading) {
+    return (
+      <Center minH="100vh">
+        <Spinner size="xl" color="purple.600" />
+      </Center>
+    );
+  }
 
   if (!user) {
     return null;
